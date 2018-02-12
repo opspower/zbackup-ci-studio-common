@@ -1,0 +1,47 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source: {repository: chefes/lita-worker}
+
+inputs:
+  - name: ci-studio-common
+  - name: project
+
+params:
+  # AWS chef-cd
+  AWS_ACCESS_KEY_ID_CHEF_CD: ((aws_access_key_id_chef_cd))
+  AWS_SECRET_ACCESS_KEY_CHEF_CD: ((aws_secret_access_key_chef_cd))
+  AWS_PRIVATE_KEY_CD_INFRASTRUCTURE: ((aws_private_key_cd_infrastructure))
+  # AWS chef-es
+  AWS_ACCESS_KEY_ID_CHEF_ES: ((aws_access_key_id_chef_es))
+  AWS_SECRET_ACCESS_KEY_CHEF_ES: ((aws_secret_access_key_chef_es))
+  AWS_PRIVATE_KEY_ES_INFRASTRUCTURE: ((aws_private_key_es_infrastructure))
+  # Chef user delivery
+  CHEF_USER_PRIVATE_KEY_DELIVERY: ((chef_user_private_key_delivery))
+  # GitHub chef-delivery
+  GITHUB_PRIVATE_KEY_CHEF_DELIVERY: ((github_private_key_chef_delivery))
+  TF_MAKE_DIRECTORY: # value supplied by concourse pipeline
+  TF_MAKE_TARGET: # value supplied by concourse pipeline
+
+run:
+  path: sh
+  args:
+    - -ec
+    - |
+      # Setup chef-cd AWS profile
+      ci-studio-common/concourse/scripts/aws-config.sh chef-cd us-west-2
+      ci-studio-common/concourse/scripts/aws-credentials.sh chef-cd AWS_ACCESS_KEY_ID_CHEF_CD AWS_SECRET_ACCESS_KEY_CHEF_CD
+      ci-studio-common/concourse/scripts/ssh-private-key.sh AWS_PRIVATE_KEY_CD_INFRASTRUCTURE
+      # Setup chef-es AWS profile
+      ci-studio-common/concourse/scripts/aws-config.sh chef-es us-west-2
+      ci-studio-common/concourse/scripts/aws-credentials.sh chef-es AWS_ACCESS_KEY_ID_CHEF_ES AWS_SECRET_ACCESS_KEY_CHEF_ES
+      ci-studio-common/concourse/scripts/ssh-private-key.sh AWS_PRIVATE_KEY_ES_INFRASTRUCTURE
+      # Setup chef-delivery GitHub ssh access
+      ci-studio-common/concourse/scripts/ssh-config-github.sh GITHUB_PRIVATE_KEY_CHEF_DELIVERY
+      ci-studio-common/concourse/scripts/ssh-private-key.sh GITHUB_PRIVATE_KEY_CHEF_DELIVERY
+      # Setup Chef user delivery
+      ci-studio-common/concourse/scripts/chef-user-private-key.sh CHEF_USER_PRIVATE_KEY_DELIVERY
+      # Run terraform
+      ci-studio-common/concourse/scripts/terraform.sh
