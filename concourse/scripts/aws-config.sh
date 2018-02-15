@@ -5,8 +5,8 @@ set -e
 # hide secrets
 set +x
 
-profile="$1"
-region="$2"
+profile="${1:-chef-cd}"
+region="${AWS_DEFAULT_REGION:-us-west-2}"
 
 echo "Setting up AWS config for $profile"
 

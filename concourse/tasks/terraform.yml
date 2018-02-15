@@ -10,6 +10,10 @@ inputs:
   - name: project
 
 params:
+  # AWS profile
+  AWS_PROFILE: chef-cd
+  # AWS Default Region
+  AWS_DEFAULT_REGION: us-west-2
   # AWS chef-cd
   AWS_ACCESS_KEY_ID_CHEF_CD: ((aws_access_key_id_chef_cd))
   AWS_SECRET_ACCESS_KEY_CHEF_CD: ((aws_secret_access_key_chef_cd))
@@ -31,11 +35,11 @@ run:
     - -ec
     - |
       # Setup chef-cd AWS profile
-      ci-studio-common/concourse/scripts/aws-config.sh chef-cd us-west-2
+      ci-studio-common/concourse/scripts/aws-config.sh chef-cd
       ci-studio-common/concourse/scripts/aws-credentials.sh chef-cd AWS_ACCESS_KEY_ID_CHEF_CD AWS_SECRET_ACCESS_KEY_CHEF_CD
       ci-studio-common/concourse/scripts/ssh-private-key.sh AWS_PRIVATE_KEY_CD_INFRASTRUCTURE
       # Setup chef-es AWS profile
-      ci-studio-common/concourse/scripts/aws-config.sh chef-es us-west-2
+      ci-studio-common/concourse/scripts/aws-config.sh chef-es
       ci-studio-common/concourse/scripts/aws-credentials.sh chef-es AWS_ACCESS_KEY_ID_CHEF_ES AWS_SECRET_ACCESS_KEY_CHEF_ES
       ci-studio-common/concourse/scripts/ssh-private-key.sh AWS_PRIVATE_KEY_ES_INFRASTRUCTURE
       # Setup chef-delivery GitHub ssh access
