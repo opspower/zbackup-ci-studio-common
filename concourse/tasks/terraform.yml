@@ -26,6 +26,7 @@ params:
   CHEF_USER_PRIVATE_KEY_DELIVERY: ((chef_user_private_key_delivery))
   # GitHub chef-delivery
   GITHUB_PRIVATE_KEY_CHEF_DELIVERY: ((github_private_key_chef_delivery))
+  # Terraform
   TF_MAKE_DIRECTORY: # value supplied by concourse pipeline
   TF_MAKE_TARGET: # value supplied by concourse pipeline
 
