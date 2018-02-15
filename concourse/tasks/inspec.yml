@@ -1,0 +1,43 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source: {repository: chefes/lita-worker}
+
+inputs:
+  - name: ci-studio-common
+  - name: project
+
+params:
+  # AWS profile
+  AWS_PROFILE: chef-cd
+  # AWS Default Region
+  AWS_DEFAULT_REGION: us-west-2
+  # AWS chef-cd
+  AWS_ACCESS_KEY_ID_CHEF_CD: ((aws_access_key_id_chef_cd))
+  AWS_SECRET_ACCESS_KEY_CHEF_CD: ((aws_secret_access_key_chef_cd))
+  AWS_PRIVATE_KEY_CD_INFRASTRUCTURE: ((aws_private_key_cd_infrastructure))
+  # AWS chef-es
+  AWS_ACCESS_KEY_ID_CHEF_ES: ((aws_access_key_id_chef_es))
+  AWS_SECRET_ACCESS_KEY_CHEF_ES: ((aws_secret_access_key_chef_es))
+  AWS_PRIVATE_KEY_ES_INFRASTRUCTURE: ((aws_private_key_es_infrastructure))
+
+run:
+  path: sh
+  args:
+    - -ec
+    - |
+      # Setup chef-cd AWS profile
+      ci-studio-common/concourse/scripts/aws-config.sh chef-cd
+      ci-studio-common/concourse/scripts/aws-credentials.sh chef-cd AWS_ACCESS_KEY_ID_CHEF_CD AWS_SECRET_ACCESS_KEY_CHEF_CD
+      ci-studio-common/concourse/scripts/ssh-private-key.sh AWS_PRIVATE_KEY_CD_INFRASTRUCTURE
+      # Setup chef-es AWS profile
+      ci-studio-common/concourse/scripts/aws-config.sh chef-es
+      ci-studio-common/concourse/scripts/aws-credentials.sh chef-es AWS_ACCESS_KEY_ID_CHEF_ES AWS_SECRET_ACCESS_KEY_CHEF_ES
+      ci-studio-common/concourse/scripts/ssh-private-key.sh AWS_PRIVATE_KEY_ES_INFRASTRUCTURE
+      # Install parallel
+      ci-studio-common/concourse/scripts/install-parallel.sh        
+      # Run inspec tests
+      ci-studio-common/concourse/scripts/inspec.rb
+      parallel --no-notice --arg-file project/parallel-commands
